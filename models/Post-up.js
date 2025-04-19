@@ -1,0 +1,38 @@
+
+const mongoose = require('mongoose');
+
+const PostUpload = new mongoose.Schema({
+  
+    caption : {
+        type: String,
+        required: true
+    },
+    location : {
+        type: String,
+        required: true
+    },
+    tags : {
+        type : String,
+        required: true
+    },
+    likes: [{
+        type: mongoose.Schema.Types.ObjectId , ref: 'User'
+    }],
+    comments: [{
+         type: mongoose.Schema.Types.ObjectId , ref: 'comment'
+    }],
+    image : {
+        type: String,
+        requred : true
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId , ref: 'User', required:true
+    },
+    
+
+});
+
+const Uploads =  mongoose.model('Uploads' , PostUpload);
+
+module.exports = Uploads
+

@@ -1,0 +1,38 @@
+const mongoose = require('mongoose')
+const express = require('express')
+const dotEnv = require('dotenv')
+const cors = require('cors')
+const authRoutes = require('./routes/authRoutes.js');
+const fs = require('fs');
+const path = require('path');   
+const app = express();
+app.use('/uploads', 
+express.static(path.join(__dirname,'/uploads')));
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({extended : true}));
+dotEnv.config();
+
+const uploadDir = path.join(__dirname,"uploads");
+if(!fs.existsSync(uploadDir)){
+    fs.mkdirSync(uploadDir, { recursive:true });
+    conslole.log("UPload Folder Created.");
+}
+
+mongoose.connect(process.env.MONGO_URL,{
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(()=>{
+    console.log("mongoDB connected successfully!")
+})
+.catch(()=>{
+    console.log(" server connection error")
+})
+
+app.use('/api-auth', authRoutes);
+
+const PORT = process.env.PORT || 5000
+app.listen(PORT, ()=>{
+    console.log(`Server started and running at ${PORT}`)
+})
