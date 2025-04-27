@@ -9,7 +9,13 @@ const { likes } = require('../controllers/likes.js')
 const Uploads = require('../models/Post-up.js');
 const Comments = require('../models/comments.js')
 const { createComments } = require('../controllers/comments.js');
-const { deleteComments } = require('../controllers/deleteComment.js')
+const { deleteComments } = require('../controllers/deleteComment.js');
+const { searchUsers } = require('../controllers/searchUsers.js');
+const { updateUserDetails } = require('../controllers/UpdateUserSchme.js');
+const { sendFollowRequests } =require('../controllers/sendFollowRequests.js');
+const { unFollowUser } = require('../controllers/unFollowUser.js');
+const { getCUDetails} = require('../controllers/getCUDetails.js');
+const {  uploadProfileImg } =require('../controllers/uploadProfileImg.js')
 
 
 const router = express.Router();
@@ -78,6 +84,7 @@ router.post('/login', async(req,res)=> {
        return res.status(500).json({message:"server error"});
   }
 });
+
 const checkauth = (req,res,next) => {
   try{ 
   if(!req.header('Authorization')){
@@ -110,21 +117,40 @@ router.get("/",checkauth ,async(req,res)=>{
   };
   
 });
-router.get('/explore', async(req,res)=>{
-  try{
-    const Users = await Details.find();
-    return res.status(201).json(Users);
-  }catch(err){
-    console.error(err);
-    return res.status(500).json({message : "server error"});
-  }
-});
+router.get('/explore/search', checkauth, searchUsers);
 
 router.post("/create-post" , upload.single("image") , checkauth, createPost);
+router.post('/upload-profile-img' , upload.single("profilePhoto") , checkauth , uploadProfileImg);
+
+router.get('/all-Details/C-U',checkauth , async(req,res) => {
+  const  userId  = req.user.userId;
+  try{
+    const details = await Details.findById(userId);
+
+    return res.status(200).json(details);
+  }catch(error){
+    console.log(error);
+    return res.status(500).json({message: "server error"});
+  }
+}
+);
+
+// router.get('/all-Details/U/:userId' , async(req,res) => {
+//   const userId = req.params.userId;
+//   console.log(userId,"receiverd ")
+//   try{
+//     const userDetails = await Details.findById(userId).select("image _id");
+//     return res.status(200).json(userDetails);
+
+//   }catch(error){
+//     console.log("server Error",error);
+//     return res.status(500).json({message: "server error"})
+//   }
+// })
 
 router.get("/post", async(req,res)=>{
     try{
-        const post = await Uploads.find();
+        const post = await Uploads.find().populate('userId', 'username image');
         return res.status(201).json(post);
     }catch(error){
       console.error(error);
@@ -135,7 +161,7 @@ router.get("/post", async(req,res)=>{
 const getUserPosts = async(req,res) => {
   try {
       const userId = req.user.userId
-      const posts = await Uploads.find({ userId }).sort({ createdAt: -1 });
+      const posts = await Uploads.find({ userId }).sort({ createdAt: -1 });      
       res.status(200).json(posts);
   }catch(err){
       console.error(err);
@@ -164,5 +190,41 @@ router.post("/:postId/comment", checkauth,  createComments );
 
 router.delete('/comments/:commentId',checkauth, deleteComments);
 
+router.put('/Update/your/details' , checkauth, updateUserDetails);
+
+router.post('/follow/:userId', checkauth, sendFollowRequests);
+router.post('/unfollow/:userId', checkauth , unFollowUser);
+
+router.get('/getDetails' , getCUDetails);
+
+router.get('/user/:userId' , checkauth ,  async(req,res) => {
+  
+  const  userId  = req.params.userId;
+  const  currentUserId  = req.user.userId;
+  console.log("received userId",userId);
+  console.log("receiverd currentUserId" , currentUserId);
+
+  if(!userId){
+    return res.status(400).json({message: "userID not found"})
+  }
+
+  try{
+    const user = await Details.findById(userId);
+   
+    const FollowingCount = user.following ? user.following.length : 0;
+    const FollowersCount = user.followers ? user.followers.length : 0;
+    const isFollowing  = user.followers.includes(currentUserId);
+
+    res.status(200).json({user, 
+      FollowingCount,
+      FollowersCount,
+      isFollowing
+    });
+
+  }catch(err){
+    console.log(err);
+    return res.status(500).json({message:"server errror"})
+  }
+});
 
 module.exports = router;

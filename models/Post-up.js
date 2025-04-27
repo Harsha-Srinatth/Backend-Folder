@@ -16,7 +16,7 @@ const PostUpload = new mongoose.Schema({
         required: true
     },
     likes: [{
-        type: mongoose.Schema.Types.ObjectId , ref: 'User'
+        type: mongoose.Schema.Types.ObjectId , ref: 'Details'
     }],
     comments: [{
          type: mongoose.Schema.Types.ObjectId , ref: 'comment'
@@ -26,7 +26,7 @@ const PostUpload = new mongoose.Schema({
         requred : true
     },
     userId: {
-        type: mongoose.Schema.Types.ObjectId , ref: 'User', required:true
+        type: mongoose.Schema.Types.ObjectId , ref: 'Details', required:true
     },
     
 

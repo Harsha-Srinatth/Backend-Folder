@@ -18,7 +18,23 @@ const DetailSchema = new mongoose.Schema({
         password : {
             type: String,
             required: true
-        }
+        },
+        image: {
+            type: String,
+            default: ""
+        },
+        isPrivate: {
+            type: Boolean , default: false
+        },
+         followers: [{
+                type: mongoose.Schema.Types.ObjectId , ref: 'Details',default: []
+            }],
+         following: [{
+                type: mongoose.Schema.Types.ObjectId , ref: 'Details',default: []
+            }],
+        followRequests: [{
+                type: mongoose.Schema.Types.ObjectId,ref: 'Details',default: []
+            }]
     }
 );
 
