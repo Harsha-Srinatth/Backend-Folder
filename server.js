@@ -18,7 +18,7 @@ dotEnv.config();
 const uploadDir = path.join(__dirname,"uploads");
 if(!fs.existsSync(uploadDir)){
     fs.mkdirSync(uploadDir, { recursive:true });
-    conslole.log("UPload Folder Created.");
+    console.log("UPload Folder Created.");
 }
 
 mongoose.connect(process.env.MONGO_URL,{
