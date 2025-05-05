@@ -9,7 +9,9 @@ const app = express();
 app.use('/uploads', 
 express.static(path.join(__dirname,'/uploads')));
 app.use(cors({
-    origin:'https://react-first-p1.vercel.app'
+    origin:'https://react-first-p1.vercel.app',
+    credentials: true,
+    methods: ['GET','POST','PUT','DELETE','OPTIONS']
 }));
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
