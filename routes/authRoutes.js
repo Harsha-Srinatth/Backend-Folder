@@ -152,9 +152,10 @@ router.get("/post", async(req,res)=>{
     try{
         const post = await Uploads.find().populate('userId', 'username image');
         return res.status(201).json(post);
-    }catch(error){
+    }
+    catch(error)
+    {
       console.error(error);
-
       return res.status(500).json({message : "server error"});
     }
 });
@@ -179,6 +180,23 @@ const getComments = async(req,res) => {
         return res.status(500).json({message: "server error"})
     }
 };
+
+// router.get('/:userId/list-followers' , async(req,res) => {
+//   try
+//   {
+//     const userId = req.params.userId;
+//     const user = await Details.findById(userId).populate('followers', 'username firstname image');
+//     return res.status(201).json({
+//       followers: user.followers
+//   });
+//   }
+//   catch(error)
+//   {
+//     console.error(error);
+//     return res.status(500).json({ message: "Server Error"});
+//   }
+ 
+// })
 
 router.get('/:postId/comments' , getComments);
 
