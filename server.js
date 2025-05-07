@@ -6,19 +6,21 @@ const authRoutes = require('./routes/authRoutes.js');
 const fs = require('fs');
 const path = require('path');   
 const app = express();
+
+const uploadDir = process.env.UPLOADS_PATH || path.join(__dirname,'/uploads');
+
+app.use('/uploads', 
+    express.static(uploadDir));
 app.use(cors({
     origin:'https://react-first-p1.vercel.app',
     credentials: true,
     methods: ['GET','POST','PUT','DELETE','OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use('/uploads', 
-express.static(path.join(__dirname,'/uploads')));
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
 dotEnv.config();
 
-const uploadDir = path.join(__dirname,"uploads");
 if(!fs.existsSync(uploadDir)){
     fs.mkdirSync(uploadDir, { recursive:true });
     console.log("UPload Folder Created.");

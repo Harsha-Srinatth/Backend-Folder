@@ -7,6 +7,7 @@ exports.deleteComments = async(req,res) => {
         const { commentId } = req.params;
         const { postId } = req.body;
         const userId = req.user.userId;
+        
         const comment = await Comments.findById(commentId);
         if(!comment){
             return res.ststus(404).json({message: " comment  not Found"})

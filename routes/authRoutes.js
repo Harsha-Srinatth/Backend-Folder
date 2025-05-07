@@ -16,7 +16,9 @@ const { sendFollowRequests } =require('../controllers/sendFollowRequests.js');
 const { unFollowUser } = require('../controllers/unFollowUser.js');
 const { getCUDetails} = require('../controllers/getCUDetails.js');
 const {  uploadProfileImg } =require('../controllers/uploadProfileImg.js')
-
+const { deletePost } = require('../controllers/deletePost.js');
+const { following } = require('../controllers/following.js');
+const { followers } = require('../controllers/followers.js')
 
 const router = express.Router();
 require('dotenv').config();
@@ -197,6 +199,10 @@ const getComments = async(req,res) => {
 //   }
  
 // })
+router.delete('/posts/:postId',checkauth ,deletePost );
+
+router.get('/following-list/:userId',following);
+router.get('/followers-list/:userId', followers);
 
 router.get('/:postId/comments' , getComments);
 
