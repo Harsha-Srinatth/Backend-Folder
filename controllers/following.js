@@ -31,7 +31,7 @@ exports.following = async(req,res) => {
    }).filter(Boolean);
    
    return  res.json({
-          following: user.following
+          following: following
     })
 
     }catch(error){
