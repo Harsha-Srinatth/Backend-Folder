@@ -4,8 +4,8 @@ exports.following = async(req,res) => {
     try{
 
     const userId  = req.params.userId;
-    console,log(userId ,"following list of user id");
-    
+    console.log(userId ,"following list of user id");
+
     if(!userId){
         return res.status(401).json({message: "userid doesnt exists"});
     }
