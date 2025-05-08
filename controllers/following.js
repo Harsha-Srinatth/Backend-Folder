@@ -8,13 +8,30 @@ exports.following = async(req,res) => {
 
     if(!userId){
         return res.status(401).json({message: "userid doesnt exists"});
-    }
-    const user = await Details.findById(userId).populate('following' , 'username firstname image');
+    };
+    const user = await Details.findById(userId);
     if(!user){
         return res.status(404).json({message:"user not found"});
     }
-    res.status(201).json({
-        following: user.following
+    if(!user.following || ! Array.isArray(user.following)){
+        return res.json({ following : []});
+    }
+     await user.populate({
+        path: 'following',
+        select : 'firstname username image',
+        model: 'Details'
+    });
+   const following = user.following.map(follow => {
+        return follow ? {
+        _id: follow._id,
+        username: follow.username || '',
+        firstname : follow.firstname || '',
+        image: followers.image || ''
+     } : null;
+   }).filter(Boolean);
+   
+   return  res.json({
+          following: user.following
     })
 
     }catch(error){
