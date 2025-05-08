@@ -26,7 +26,7 @@ exports.following = async(req,res) => {
         _id: follow._id,
         username: follow.username || '',
         firstname : follow.firstname || '',
-        image: followers.image || ''
+        image: follow.image || ''
      } : null;
    }).filter(Boolean);
    
