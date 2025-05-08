@@ -34,7 +34,7 @@ exports.following = async(req,res) => {
    }).filter(Boolean);
    
    return  res.json({
-          following: following
+       following
     })
 
     }catch(error){
