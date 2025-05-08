@@ -233,12 +233,14 @@ router.get('/user/:userId' , checkauth ,  async(req,res) => {
   }
 
   try{
-    const user = await Details.findById(userId);
-   
+    const user = await Details.findById(userId).lean();
+    if(!user){
+      return res.status(404).json({message: "User not found"})
+    }
     const FollowingCount = user.following ? user.following.length : 0;
     const FollowersCount = user.followers ? user.followers.length : 0;
     const isFollowing  = user.followers.includes(currentUserId);
-
+    user._id = user._id.toString();
     res.status(200).json({user, 
       FollowingCount,
       FollowersCount,
