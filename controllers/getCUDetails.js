@@ -3,7 +3,7 @@ const Details  = require( '../models/Details.js');
 
 exports.getCUDetails =  async(req,res) => {
   
-  const  userId  = req.query.userId;
+  const  userId  = req.user.userId;
   if(!userId){
     return res.status(400).json({message: "userID not found"})
   }

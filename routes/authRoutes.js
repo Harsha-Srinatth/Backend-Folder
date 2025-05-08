@@ -219,7 +219,7 @@ router.put('/Update/your/details' , checkauth, updateUserDetails);
 router.post('/follow/:userId', checkauth, sendFollowRequests);
 router.post('/unfollow/:userId', checkauth , unFollowUser);
 
-router.get('/getDetails' , getCUDetails);
+router.get('/getDetails' ,checkauth, getCUDetails);
 
 router.get('/user/:userId' , checkauth ,  async(req,res) => {
   
