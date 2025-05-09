@@ -20,8 +20,8 @@ const DetailSchema = new mongoose.Schema({
             required: true
         },
         image: {
-            type: String,
-            default: ""
+            data: Buffer,
+            contentType: String,
         },
         isPrivate: {
             type: Boolean , default: false

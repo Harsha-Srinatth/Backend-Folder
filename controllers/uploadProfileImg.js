@@ -5,10 +5,12 @@ exports.uploadProfileImg = async(req,res) => {
 
     console.log("received, user Id for Upload Profile photo" , userId);
     try{
-        const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
-
+        
         const user  = await Details.findByIdAndUpdate(userId ,
-            {image : imageUrl },
+            {image : {
+                data: req.file.buffer,
+                contentType: req.file.mimetype,
+            } },
             {new : true, runValidators:false }
         );
         

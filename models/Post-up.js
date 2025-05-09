@@ -22,8 +22,8 @@ const PostUpload = new mongoose.Schema({
          type: mongoose.Schema.Types.ObjectId , ref: 'comment'
     }],
     image : {
-        type: String,
-        requred : true
+       data: Buffer,
+       contentType: String,
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId , ref: 'Details', required:true

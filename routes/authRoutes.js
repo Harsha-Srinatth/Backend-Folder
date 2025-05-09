@@ -3,7 +3,7 @@ const express = require('express');
 const Details  = require( '../models/Details.js');
 var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
-const upload = require("../middleware/multer.js");
+const multer = require('multer');
 const { createPost } = require('../controllers/create-Post.js');
 const { likes } = require('../controllers/likes.js')
 const Uploads = require('../models/Post-up.js');
@@ -120,6 +120,10 @@ router.get("/",checkauth ,async(req,res)=>{
   
 });
 router.get('/explore/search', checkauth, searchUsers);
+
+   
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 router.post("/create-post" , upload.single("image") , checkauth, createPost);
 router.post('/upload-profile-img' , upload.single("profilePhoto") , checkauth , uploadProfileImg);

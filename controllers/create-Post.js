@@ -6,12 +6,13 @@ exports.createPost = async (req , res) => {
         const { caption,location,tags,likes,comments } = req.body;
         const userId = req.user.userId;
         
-        const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
-        
         const newPost = new Uploads({ caption,location,tags,likes,comments,
-            image: imageUrl,
+            image: {
+                data: req.file.buffer,
+                contentType: req.file.mimetype,
+            },
             userId, 
-        })
+        });
         await newPost.save();
         res.status(201).json({meassage: "post uploaded"});
     }
