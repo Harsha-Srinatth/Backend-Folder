@@ -181,10 +181,13 @@ router.get("/post", async(req,res)=>{
         //   delete post.image.data
         // }
         const formattedpost = post.map(post => {
-          const imageBase64 = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
-
+          const postImage = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
+          const userImage = post.userId?.image?.data ? `data:${post.userId.image.contentType};base64,${post.userId.image.data.toString('base64')}` : null;
           return { ...post,
-            imageUrl: imageBase64,
+            imageUrl: postImage,
+            user: {
+              ...post.userId,imageUrl: userImage
+            }
           };
         });
 
@@ -192,7 +195,7 @@ router.get("/post", async(req,res)=>{
     }
     catch(error)
     {
-      console.error(error);
+      console.error("Failed to fetch posts",error);
       return res.status(500).json({message : "server error"});
     }
 });
