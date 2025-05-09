@@ -153,10 +153,33 @@ router.get('/all-Details/C-U',checkauth , async(req,res) => {
 //     return res.status(500).json({message: "server error"})
 //   }
 // })
+router.get("/post/:postId", async(req,res)=> {
+  try{
+    const post = await Uploads.find(req.params.postId);
+
+     if(!post || !post.image || !post.image.data){
+          return res.status(404).send("image not found");
+      }
+
+     res.set('Content-Type', post.image.contentType || 'image/jpeg');
+     return res.send(post.image.data);
+
+  }catch(error){
+    console.error(error);
+    return res.status(500).json({message: " Server Error"})
+  }
+})
 
 router.get("/post", async(req,res)=>{
     try{
-        const post = await Uploads.find().populate('userId', 'username image');
+        const postData = await Uploads.find().populate('userId', 'username image');
+        if(!postData){
+          return res.status(404).json({message: "post not found"});
+        }
+        const post = postData.toObject();
+        if(post.image){
+          delete post.image.data
+        }
         return res.status(201).json(post);
     }
     catch(error)
