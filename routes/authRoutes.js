@@ -172,7 +172,7 @@ router.get('/all-Details/C-U',checkauth , async(req,res) => {
 
 router.get("/post", async(req,res)=>{
     try{
-        const post = await Uploads.find().populate('userId', 'username');
+        const post = await Uploads.find().populate('userId', 'username image').lean();
         if(!post){
           return res.status(404).json({message: "post not found"});
         }
@@ -183,7 +183,7 @@ router.get("/post", async(req,res)=>{
         const formattedpost = post.map(post => {
           const imageBase64 = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
 
-          return { ...post.toObject(),
+          return { ...post,
             imageUrl: imageBase64,
           };
         });
