@@ -153,34 +153,42 @@ router.get('/all-Details/C-U',checkauth , async(req,res) => {
 //     return res.status(500).json({message: "server error"})
 //   }
 // })
-router.get("/post/:postId", async(req,res)=> {
-  try{
-    const post = await Uploads.find(req.params.postId);
+// router.get("/post/:postId", async(req,res)=> {
+//   try{
+//     const post = await Uploads.find(req.params.postId);
 
-     if(!post || !post.image || !post.image.data){
-          return res.status(404).send("image not found");
-      }
+//      if(!post || !post.image || !post.image.data){
+//           return res.status(404).send("image not found");
+//       }
 
-     res.set('Content-Type', post.image.contentType || 'image/jpeg');
-     return res.send(post.image.data);
+//      res.set('Content-Type', post.image.contentType || 'image/jpeg');
+//      return res.send(post.image.data);
 
-  }catch(error){
-    console.error(error);
-    return res.status(500).json({message: " Server Error"})
-  }
-})
+//   }catch(error){
+//     console.error(error);
+//     return res.status(500).json({message: " Server Error"})
+//   }
+// })
 
 router.get("/post", async(req,res)=>{
     try{
-        const postData = await Uploads.find().populate('userId', 'username').lean();
-        if(!postData){
+        const post = await Uploads.find().populate('userId', 'username');
+        if(!post){
           return res.status(404).json({message: "post not found"});
         }
-        const post = postData.toObject();
-        if(post.image && post.image.data){
-          delete post.image.data
-        }
-        return res.status(201).json(post);
+        // const post = postData.toObject();
+        // if(post.image && post.image.data){
+        //   delete post.image.data
+        // }
+        const formattedpost = post.map(post => {
+          const imageBase64 = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
+
+          return { ...post.toObject(),
+            imageUrl: imageBase64,
+          };
+        });
+
+        return res.status(201).json(formattedpost);
     }
     catch(error)
     {
