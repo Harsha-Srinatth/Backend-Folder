@@ -172,12 +172,12 @@ router.get("/post/:postId", async(req,res)=> {
 
 router.get("/post", async(req,res)=>{
     try{
-        const postData = await Uploads.find().populate('userId', 'username image');
+        const postData = await Uploads.find().populate('userId', 'username').lean();
         if(!postData){
           return res.status(404).json({message: "post not found"});
         }
         const post = postData.toObject();
-        if(post.image){
+        if(post.image && post.image.data){
           delete post.image.data
         }
         return res.status(201).json(post);
