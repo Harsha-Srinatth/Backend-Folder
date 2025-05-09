@@ -3,16 +3,42 @@ const Details  = require( '../models/Details.js');
 exports.followers = async(req,res) => {
     try{
 
-    const { userId } = req.params;
+    const userId  = req.params.userId;
+
     if(!userId){
-        return res.status(401).json({message: "userid doesnt exists"});
-    }
-    const user = await Details.findById(userId).populate('followers' , 'username firstname image');
+        return res.status(401).json({message: "userid doesnt exists" });
+    };
+
+    const user = await Details.findById(userId);
+
     if(!user){
         return res.status(404).json({message:"user not found"});
     }
-    res.status(201).json({
-       followers : user.followers
+
+    if(!user.followers || !Array.isArray(user.followers)){
+        return res.json({ followers : [] });
+    };
+
+     await user.populate({
+        path: 'followers',
+        select : 'firstname username image',
+        model: 'Details'
+    });
+    if(!Array.isArray(user.followers)){
+        return res.json({ followers : [] });
+    }
+   const followers = user.followers.map(follow => {
+    if(!follow) return null;
+        return  {
+        _id: follow._id,
+        username: follow.username || '',
+        firstname : follow.firstname || '',
+        image: follow.image || ''
+     };
+   }).filter(Boolean);
+   
+   return  res.json({
+       followers
     })
 
     }catch(error){
