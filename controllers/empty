@@ -1,0 +1,209 @@
+// // CLIENT-SIDE: Image compression before upload
+// // Add this to your React/frontend upload component
+
+// // Install these packages:
+// // npm install browser-image-compression
+
+// import imageCompression from 'browser-image-compression';
+
+// async function handleProfileImageUpload(event) {
+//   const imageFile = event.target.files[0];
+  
+//   if (!imageFile) {
+//     console.log('No file selected');
+//     return;
+//   }
+  
+//   console.log('Original image size:', imageFile.size / 1024 / 1024, 'MB');
+  
+//   // Compression options
+//   const options = {
+//     maxSizeMB: 1,              // Max file size in MB (smaller than your 2MB requirement)
+//     maxWidthOrHeight: 800,     // Resize large images (maintains aspect ratio)
+//     useWebWorker: true,        // Use web worker for better UI performance
+//     fileType: imageFile.type   // Maintain the original file type
+//   };
+  
+//   try {
+//     // Compress the image
+//     const compressedFile = await imageCompression(imageFile, options);
+//     console.log('Compressed image size:', compressedFile.size / 1024 / 1024, 'MB');
+    
+//     // Create FormData for upload
+//     const formData = new FormData();
+//     formData.append('profileImage', compressedFile);
+    
+//     // Upload to server
+//     const response = await fetch('/api/uploadProfileImg', {
+//       method: 'POST',
+//       headers: {
+//         // Don't set Content-Type with FormData, browser will set it with boundary
+//       },
+//       credentials: 'include', // For session cookies if needed
+//       body: formData
+//     });
+    
+//     const result = await response.json();
+    
+//     if (response.ok) {
+//       console.log('Upload successful:', result);
+//       // Update UI or notify user
+//     } else {
+//       console.error('Upload failed:', result);
+//       // Show error to user
+//     }
+//   } catch (error) {
+//     console.error('Error during image compression or upload:', error);
+//     // Handle and display error to user
+//   }
+// }
+
+// // Usage in a React component:
+// /*
+// <input 
+//   type="file" 
+//   accept="image/*" 
+//   onChange={handleProfileImageUpload} 
+//   className="form-control" 
+// />
+// */
+
+// // ------------------------------------------------------
+// // SERVER-SIDE: Modify your uploadProfileImg.js handler
+// // ------------------------------------------------------
+
+// const Details = require('../models/Details');
+// const multer = require('multer');
+// const sharp = require('sharp'); // npm install sharp
+
+// // Set up multer storage for file uploads
+// const storage = multer.memoryStorage(); // Store as buffer in memory
+
+// // Set up file filter
+// const fileFilter = (req, file, cb) => {
+//   // Accept only image files
+//   if (file.mimetype.startsWith('image/')) {
+//     cb(null, true);
+//   } else {
+//     cb(new Error('Please upload only images'), false);
+//   }
+// };
+
+// // Configure multer middleware
+// const upload = multer({
+//   storage: storage,
+//   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit (generous buffer)
+//   fileFilter: fileFilter
+// });
+
+// // Export middleware and handler separately for cleaner usage in routes
+// exports.uploadProfileImage = upload.single('profileImage');
+
+// exports.uploadProfileImg = async (req, res) => {
+//   try {
+//     const userId = req.user.userId;
+//     console.log("received user id for Upload Profile photo", userId);
+    
+//     if (!req.file) {
+//       return res.status(400).json({ message: 'No image file provided' });
+//     }
+    
+//     // Process image with sharp to ensure it's optimized
+//     // Even if client already compressed, this ensures uniformity
+//     const processedImageBuffer = await sharp(req.file.buffer)
+//       .resize({ 
+//         width: 400,           // Standard profile pic width
+//         height: 400,          // Square crop for profile pic
+//         fit: 'cover',         // Preserve aspect ratio & cover area
+//         position: 'center'    // Center focus for crop
+//       })
+//       .jpeg({ quality: 80 })  // Convert to JPEG with reasonable quality
+//       .toBuffer();
+    
+//     // Update user record
+//     const user = await Details.findByIdAndUpdate(
+//       userId,
+//       {
+//         image: {
+//           data: processedImageBuffer,
+//           contentType: 'image/jpeg' // We converted to JPEG
+//         }
+//       },
+//       { new: true, runValidators: false }
+//     );
+    
+//     res.status(200).json(user);
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).json({ message: "Server Error" });
+//   }
+// };
+
+// // ------------------------------------------------------
+// // OPTIMIZED DATA STRUCTURE FOR STORING & RETRIEVING IMAGES
+// // ------------------------------------------------------
+
+// // In your Details model, ensure the image structure is:
+// /*
+// const detailsSchema = new mongoose.Schema({
+//   // Other user fields...
+//   image: {
+//     data: Buffer,
+//     contentType: String
+//   },
+//   // If you want a separate URL field for CDN or external hosted images:
+//   imageUrl: String
+// });
+// */
+
+// // ------------------------------------------------------
+// // RENDERING IMAGE AFTER FETCHING FROM DATABASE
+// // ------------------------------------------------------
+
+// // On the frontend when displaying the image:
+// function ProfileImage({ user }) {
+//   // Helper function to handle the image source
+//   const getImageSource = () => {
+//     if (!user) return '/default-avatar.png';
+    
+//     if (user.imageUrl) {
+//       return user.imageUrl; // Use direct URL if available
+//     }
+    
+//     if (user.image && user.image.data) {
+//       // For images stored directly in database
+//       // Handle potential base64 formatting issues
+//       let imageData = user.image.data;
+      
+//       // If it already has data URL prefix, use as is
+//       if (typeof imageData === 'string' && imageData.startsWith('data:')) {
+//         return imageData;
+//       }
+      
+//       // Otherwise format properly
+//       const contentType = user.image.contentType || 'image/jpeg';
+      
+//       // If it has the JPEG prefix, clean it up
+//       if (typeof imageData === 'string' && imageData.startsWith('/9j/')) {
+//         imageData = imageData.substring(4);
+//       }
+      
+//       return data:${contentType};base64,${imageData};
+//     }
+    
+//     // Fallback to default avatar
+//     return '/default-avatar.png';
+//   };
+  
+//   return (
+//     <img 
+//       src={getImageSource()}
+//       alt={user?.username || 'User'} 
+//       onError={(e) => {
+//         e.target.onerror = null; 
+//         e.target.src = '/default-avatar.png';
+//       }}
+//       className="profile-image"
+//     />
+//   );
+// }

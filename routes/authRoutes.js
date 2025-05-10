@@ -18,7 +18,8 @@ const { getCUDetails} = require('../controllers/getCUDetails.js');
 const {  uploadProfileImg } =require('../controllers/uploadProfileImg.js')
 const { deletePost } = require('../controllers/deletePost.js');
 const { following } = require('../controllers/following.js');
-const { followers } = require('../controllers/followers.js')
+const { followers } = require('../controllers/followers.js');
+const { uploadProfileImage } = require('../middleware/uploadProfileImage.js')
 
 const router = express.Router();
 require('dotenv').config();
@@ -123,10 +124,10 @@ router.get('/explore/search', checkauth, searchUsers);
 
    
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({ storage: storage});
 
 router.post("/create-post" , upload.single("image") , checkauth, createPost);
-router.post('/upload-profile-img' , upload.single("profilePhoto") , checkauth , uploadProfileImg);
+router.post('/upload-profile-img' ,  uploadProfileImage  , checkauth , uploadProfileImg);
 
 router.get('/all-Details/C-U',checkauth , async(req,res) => {
   const  userId  = req.user.userId;
