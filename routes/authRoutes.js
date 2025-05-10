@@ -182,20 +182,38 @@ router.get("/post", async(req,res)=>{
           if(post.image && post.image?.data && post?.image?.contentType){
               postImage = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
           }
-          if(post.userId && post.userId?.image && post.userId?.image?.data && post.userId?.image?.contentType){
-            try{
-              const imageData = Buffer.isBuffer(post.userId.image.data) ? post.userId?.image?.data.toString('base64') : post.userId.image.data;
-                userImage = `data:${post.userId.image.contentType};base64,${ imageData }`;
-              
-            }catch(error){
-              console.error("Error formating user image",error)
+          let userInfo = null;
+
+          const userData = post.user || post.userId || {};
+          if(userData){
+            userInfo = {
+              _id : userData._id || "",
+              username: userData.username || ""
+            };
+
+          if(userData.imageUrl) {
+            userImage = userData.imageUrl;
+          }else if(userData.image){
+            if(userData.image.imageUrl){
+              userImage = userData.image.imageUrl;
             }
-          
+          }else if(userData.image.data && userData.image.contentType){
+            try{
+              if(typeof userData.image.data === 'string' && userData.image.data.startsWith('data:')){
+                userImage = userData.image.data;
+              }else{
+                const imageData = Buffer.isBuffer(userData.image.data) ? userData.image?.data.toString('base64') : userData.image.data;
+                userImage = `data:${userData.image.contentType};base64,${ imageData }`;
+              }         
+            }catch(error){
+              console.error("Error formating user image",error);
+            }
           }
-          return { ...post,
+        }
+        return { ...post,
             imageUrl: postImage,
             user: {
-              ...post.userId,
+              ...userInfo,
               imageUrl: userImage
             }
           };
