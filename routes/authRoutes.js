@@ -127,7 +127,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage});
 
 router.post("/create-post" , upload.single("image") , checkauth, createPost);
-router.post('/upload-profile-img' ,  uploadProfileImage  , checkauth , uploadProfileImg);
+router.post('/upload-profile-img' ,checkauth , uploadProfileImage, uploadProfileImg);
 
 router.get('/all-Details/C-U',checkauth , async(req,res) => {
   const  userId  = req.user.userId;

@@ -22,7 +22,8 @@ exports.uploadProfileImg = async (req, res) => {
       })
       .jpeg({ quality: 80 })  // Convert to JPEG with reasonable quality
       .toBuffer();
-    
+    const sizeInMB = ( processedImageBuffer.length / ( 1024 *1024)).toFixed(4);
+    console.log(`Compressed image size: ${sizeInMB} MB`);
     // Update user record
     const user = await Details.findByIdAndUpdate(
       userId,
