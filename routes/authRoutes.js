@@ -178,27 +178,28 @@ router.get("/post", async(req,res)=>{
         }
         const formattedpost = post.map(post => {
           let postImage = null;
-          let userImage = null;
           if(post.image && post.image?.data && post?.image?.contentType){
               postImage = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
           }
-          let userInfo = null;
-
           const userData = post.user || post.userId || {};
+          let userInfo = null;
           console.log(userData);
           if(userData){
             userInfo = {
               _id : userData._id || "",
               username: userData.username || ""
             };
+          }
+             let userImage = null;
 
           if(userData.imageUrl) {
             userImage = userData.imageUrl;
-          }else if(userData.image){
+          }
+          else if(userData.image){
             if(userData.image.imageUrl){
               userImage = userData.image.imageUrl;
             }
-          }else if(userData.image.data && userData.image.contentType){
+            else if(userData.image.data && userData.image.contentType){
             try{
               if(typeof userData.image.data === 'string' && userData.image.data.startsWith('data:')){
                 userImage = userData.image.data;
@@ -209,6 +210,16 @@ router.get("/post", async(req,res)=>{
             }catch(error){
               console.error("Error formating user image",error);
             }
+          }
+        }else if(userData.userId && userData.userId.image && userData.userId.image.data){
+          try{
+            if(userData.userId.image.contentType){
+              userImage = `data:${userData.image.contentType};base64,${userData.userId.image.data }`;
+            }else{
+              userImage = `data:image/jpeg;base64,${ userData.userId.image.data }`;
+            }
+          }catch(error){
+            console.error("error formating userId image",error);
           }
         }
         return { ...post,
