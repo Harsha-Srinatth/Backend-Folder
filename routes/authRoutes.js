@@ -199,10 +199,11 @@ router.get("/post", async(req,res)=>{
 const getUserPosts = async(req,res) => {
   try {
       const userId = req.user.userId
-      const post = await Uploads.find({ userId }).populate('userId','username image').sort({ createdAt: -1 }).lean();  
+      const post = await Uploads.find({ userId }).sort({ createdAt: -1 }).populate('userId','username image').lean();  
         const formattedpost = post.map(post => {
+          const user = post.userId;
           const postImage = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
-          const userImage = post.userId?.image?.data ? `data:${post.userId.image.contentType};base64,${post.userId.image.data.toString('base64')}` : null;
+          const userImage = user?.image?.data ? `data:${user.image.contentType};base64,${user.image.data.toString('base64')}`:null;
           return { ...post,
             imageUrl: postImage,
             user: {
