@@ -185,6 +185,7 @@ router.get("/post", async(req,res)=>{
           let userInfo = null;
 
           const userData = post.user || post.userId || {};
+          console.log(userData);
           if(userData){
             userInfo = {
               _id : userData._id || "",
