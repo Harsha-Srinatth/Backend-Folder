@@ -176,10 +176,6 @@ router.get("/post", async(req,res)=>{
         if(!post){
           return res.status(404).json({message: "post not found"});
         }
-        // const post = postData.toObject();
-        // if(post.image && post.image.data){
-        //   delete post.image.data
-        // }
         const formattedpost = post.map(post => {
           const postImage = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
           const userImage = post.userId?.image?.data ? `data:${post.userId.image.contentType};base64,${post.userId.image.data.toString('base64')}` : null;
@@ -203,10 +199,20 @@ router.get("/post", async(req,res)=>{
 const getUserPosts = async(req,res) => {
   try {
       const userId = req.user.userId
-      const posts = await Uploads.find({ userId }).sort({ createdAt: -1 });  
-      const postImage = posts.image?.data ? `data:${posts.image.contentType};base64,${posts.image.data.toString('base64')}`:null;
-     
-      return res.status(200).json(posts, postImage);
+      const post = await Uploads.find({ userId }).populate('userId','username image').sort({ createdAt: -1 }).lean();  
+        const formattedpost = post.map(post => {
+          const postImage = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
+          const userImage = post.userId?.image?.data ? `data:${post.userId.image.contentType};base64,${post.userId.image.data.toString('base64')}` : null;
+          return { ...post,
+            imageUrl: postImage,
+            user: {
+              ...post.userId,
+              imageUrl: userImage
+            }
+          };
+        });
+
+      return res.status(201).jsos(formattedpost);
   }catch(err){
       console.error(err);
       res.status(500).json({message: err.message})
