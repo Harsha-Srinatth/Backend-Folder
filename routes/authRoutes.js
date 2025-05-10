@@ -182,8 +182,15 @@ router.get("/post", async(req,res)=>{
           if(post.image && post.image?.data && post?.image?.contentType){
               postImage = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
           }
-          if(post.userId && post.usetId?.image && post.userId?.image?.data && post.userId?.image?.contentType){
-              userImage = post.userId?.image?.data ? `data:${post.userId.image.contentType};base64,${post.userId.image.data.toString('base64')}` : null;
+          if(post.userId && post.userId?.image && post.userId?.image?.data && post.userId?.image?.contentType){
+            try{
+              const imageData = Buffer.isBuffer(post.userId.image.data) ? post.userId?.image?.data.toString('base64') : post.userId.image.data;
+                userImage = `data:${post.userId.image.contentType};base64,${ imageData }`;
+              
+            }catch(error){
+              console.error("Error formating user image",error)
+            }
+          
           }
           return { ...post,
             imageUrl: postImage,
