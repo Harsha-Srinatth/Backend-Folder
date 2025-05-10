@@ -186,7 +186,8 @@ router.get("/post", async(req,res)=>{
           return { ...post,
             imageUrl: postImage,
             user: {
-              ...post.userId,imageUrl: userImage
+              ...post.userId,
+              imageUrl: userImage
             }
           };
         });
@@ -205,10 +206,7 @@ const getUserPosts = async(req,res) => {
       const posts = await Uploads.find({ userId }).sort({ createdAt: -1 });  
       const postImage = posts.image?.data ? `data:${posts.image.contentType};base64,${posts.image.data.toString('base64')}`:null;
      
-      return res.status(200).json(posts,{
-        ...posts,
-            imageUrl: postImage,
-  });
+      return res.status(200).json(posts, postImage);
   }catch(err){
       console.error(err);
       res.status(500).json({message: err.message})
