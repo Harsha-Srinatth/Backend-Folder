@@ -202,8 +202,13 @@ router.get("/post", async(req,res)=>{
 const getUserPosts = async(req,res) => {
   try {
       const userId = req.user.userId
-      const posts = await Uploads.find({ userId }).sort({ createdAt: -1 });      
-      res.status(200).json(posts);
+      const posts = await Uploads.find({ userId }).sort({ createdAt: -1 });  
+      const postImage = posts.image?.data ? `data:${posts.image.contentType};base64,${posts.image.data.toString('base64')}`:null;
+     
+      return res.status(200).json(posts,{
+        ...posts,
+            imageUrl: postImage,
+  });
   }catch(err){
       console.error(err);
       res.status(500).json({message: err.message})
@@ -211,7 +216,7 @@ const getUserPosts = async(req,res) => {
 };
 const getComments = async(req,res) => {
     try{
-      const { postId } = req.params;
+      const {sId } = req.params;
       const comments = await Comments.find({ post: postId }).populate( 'user','username')
       .sort({createdAt: -1});
       res.status(200).json(comments);
