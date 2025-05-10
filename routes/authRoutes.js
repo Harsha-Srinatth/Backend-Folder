@@ -173,12 +173,18 @@ router.get('/all-Details/C-U',checkauth , async(req,res) => {
 router.get("/post", async(req,res)=>{
     try{
         const post = await Uploads.find().populate('userId', 'username image').lean();
-        if(!post){
+        if(!post || post.length == 0){
           return res.status(404).json({message: "post not found"});
         }
         const formattedpost = post.map(post => {
-          const postImage = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
-          const userImage = post.userId?.image?.data ? `data:${post.userId.image.contentType};base64,${post.userId.image.data.toString('base64')}` : null;
+          let postImage = null;
+          let userImage = null;
+          if(post.image && post.image?.data && post?.image?.contentType){
+              postImage = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
+          }
+          if(post.userId && post.usetId?.image && post.userId?.image?.data && post.userId?.image?.contentType){
+              userImage = post.userId?.image?.data ? `data:${post.userId.image.contentType};base64,${post.userId.image.data.toString('base64')}` : null;
+          }
           return { ...post,
             imageUrl: postImage,
             user: {
@@ -187,6 +193,15 @@ router.get("/post", async(req,res)=>{
             }
           };
         });
+
+        if(formattedpost.length > 0){
+          console.log(JSON.stringify({
+            postId: formattedpost[0]._id,
+            postImage : formattedpost[0].imageUrl ? "present" : "Null",
+            userId:formattedpost[0].userId?._id,
+            userImage : formattedpost[0].user?.imageUrl ? "present" : "Null"
+          }))
+        }
 
         return res.status(201).json(formattedpost);
     }
@@ -198,16 +213,25 @@ router.get("/post", async(req,res)=>{
 });
 const getUserPosts = async(req,res) => {
   try {
-      const userId = req.user.userId
-      const post = await Uploads.find({ userId }).sort({ createdAt: -1 }).populate('userId','username image').lean();  
+    if(!req.user || !req.user,userId){
+      return res.status(401).json({message : " Unauthorized"})
+    }
+      const userId = req.user.userId;
+      const post = await Uploads.find({ userId }).sort({ createdAt: -1 }).populate('userId','username image').lean();
+      if(!post || post.lenght == 0){
+        return res.status(200).json({message : "no posts found", post: []});
+      }  
+
         const formattedpost = post.map(post => {
+    
+          const postImage = post.image && post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
           const user = post.userId;
-          const postImage = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
-          const userImage = user?.image?.data ? `data:${user.image.contentType};base64,${user.image.data.toString('base64')}`:null;
+          const userImage = user && user.image && user?.image?.data ? `data:${user.image.contentType};base64,${user.image.data.toString('base64')}`:null;
           return { ...post,
             imageUrl: postImage,
             user: {
-              ...post.userId,
+              _id : user?._id,
+              username: user?.username,
               imageUrl: userImage
             }
           };
@@ -221,7 +245,7 @@ const getUserPosts = async(req,res) => {
 };
 const getComments = async(req,res) => {
     try{
-      const {sId } = req.params;
+      const { postId } = req.params;
       const comments = await Comments.find({ post: postId }).populate( 'user','username')
       .sort({createdAt: -1});
       res.status(200).json(comments);
