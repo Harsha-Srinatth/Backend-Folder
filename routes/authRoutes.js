@@ -274,7 +274,7 @@ const getUserPosts = async(req,res) => {
           };
         });
 
-      return res.status(201).jsos(formattedpost);
+      return res.status(201).json(formattedpost);
   }catch(err){
       console.error(err);
       res.status(500).json({message: err.message})

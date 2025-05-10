@@ -1,4 +1,5 @@
-const Details = require('../models/Details')
+const Details = require('../models/Details');
+const sharp = require('sharp');
 
 
 exports.uploadProfileImg = async (req, res) => {
