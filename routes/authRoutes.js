@@ -196,8 +196,8 @@ router.get("/post", async(req,res)=>{
 
         if(formattedpost.length > 0){
           console.log(JSON.stringify({
-            postId: formattedpost[0]._id,
             postImage : formattedpost[0].imageUrl ? "present" : "Null",
+            userId:formattedpost[0].userId?._id,
             userImage : formattedpost[0].user?.imageUrl ? "present" : "Null"
           }))
         }
