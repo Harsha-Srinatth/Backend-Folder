@@ -198,7 +198,6 @@ router.get("/post", async(req,res)=>{
           console.log(JSON.stringify({
             postId: formattedpost[0]._id,
             postImage : formattedpost[0].imageUrl ? "present" : "Null",
-            userId:formattedpost[0].userId?._id,
             userImage : formattedpost[0].user?.imageUrl ? "present" : "Null"
           }))
         }
@@ -213,7 +212,7 @@ router.get("/post", async(req,res)=>{
 });
 const getUserPosts = async(req,res) => {
   try {
-    if(!req.user || !req.user,userId){
+    if(!req.user || !req.user.userId){
       return res.status(401).json({message : " Unauthorized"})
     }
       const userId = req.user.userId;
