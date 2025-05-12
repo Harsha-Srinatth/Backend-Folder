@@ -17,8 +17,20 @@ exports.searchUsers = async(req,res)=>{
       $options:"i"
     }, _id: { $ne: currentUserIdString }
   });
+  const userProfiles = users.map(image => {
+     let userImage = null;
+        if(post.userId.image && post.userId.image?.data && post.userId.image?.contentType){
+          userImage = post.userId.image?.data ? `data:${post.userId.image?.contentType};base64,${post.userId.image?.data.toString('base64')}`:null;
+        }
+         return { ...users,
+              user: {
+              imageUrl: userImage
+            }
+          };
+        });
 
-    res.status(201).json(users);
+
+    res.status(201).json(userProfiles);
   }catch(err){
     console.error(err);
     return res.status(500).json({message : "server error"});
