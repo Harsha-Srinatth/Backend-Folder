@@ -19,8 +19,8 @@ exports.searchUsers = async(req,res)=>{
   });
   const userProfiles = users.map(image => {
      let userImage = null;
-        if(post.userId.image && post.userId.image?.data && post.userId.image?.contentType){
-          userImage = post.userId.image?.data ? `data:${post.userId.image?.contentType};base64,${post.userId.image?.data.toString('base64')}`:null;
+        if(image.userId.image && image.userId.image?.data && image.userId.image?.contentType){
+          userImage = image.userId.image?.data ? `data:${image.userId.image?.contentType};base64,${image.userId.image?.data.toString('base64')}`:null;
         }
          return { ...users,
               user: {
@@ -28,7 +28,7 @@ exports.searchUsers = async(req,res)=>{
             }
           };
         });
-
+        console.log(userProfiles); 
 
     res.status(201).json(userProfiles);
   }catch(err){
