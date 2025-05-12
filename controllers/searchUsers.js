@@ -48,6 +48,7 @@ exports.searchUsers = async (req, res) => {
     const currentUserId = new mongoose.Types.ObjectId(userId);
     const currentUserIdString = currentUserId.toString();
     
+    
     // Build query object based on provided parameters
     let queryObj = {};
     
