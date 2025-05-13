@@ -35,8 +35,7 @@ exports.getCUDetails = async (req, res) => {
       },
       followingCount,
       followersCount
-    };
-    console.log( response);    
+    };   
     return res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching user details:", error);
