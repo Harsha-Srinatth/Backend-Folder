@@ -353,10 +353,17 @@ router.get('/user/:userId' , checkauth ,  async(req,res) => {
     const FollowersCount = user.followers ? user.followers.length : 0;
     const isFollowing  = user.followers.includes(currentUserId);
     user._id = user._id.toString();
-    res.status(200).json({user, 
+    let userImage = null;
+    if(user.image && user.image?.data && user.image?.contentType){
+      userImage = `data:${user.image?.contentType};base64,${user.image?.data.toString('base64')}`;
+    }
+    res.status(200).json({...user, 
       FollowingCount,
       FollowersCount,
-      isFollowing
+      isFollowing,
+      image: {
+        userImage
+      },
     });
 
   }catch(err){
