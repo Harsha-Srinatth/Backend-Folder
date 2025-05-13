@@ -31,7 +31,7 @@ exports.getCUDetails = async (req, res) => {
     const response = {
       ...userDetails,
       image: {
-        imageUrl: userImage
+        userImage
       },
       followingCount,
       followersCount
