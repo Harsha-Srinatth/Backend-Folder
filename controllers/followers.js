@@ -43,7 +43,7 @@ exports.followers = async(req,res) => {
             
      };
    }).filter(Boolean);
-   
+  console.log(followers);
    return  res.json({
        followers
     })
