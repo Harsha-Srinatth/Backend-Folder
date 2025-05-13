@@ -33,8 +33,6 @@ exports.getCUDetails = async (req, res) => {
       image: {
         imageUrl: userImage
       },
-      username: details.username,
-      firstname: details.firstname,
       followingCount,
       followersCount
     };
