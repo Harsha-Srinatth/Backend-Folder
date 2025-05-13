@@ -30,10 +30,9 @@ exports.followers = async(req,res) => {
    
    const followers = user.followers.map(follow => {
      let userImage = null;
-     if(user.followers.image && user.followers.image?.data && user.followers.image?.contentType){
+     if(follow.image && follow.image?.data && follow.image?.contentType){
         userImage = `data:${user.followers.image?.contentType};base64,${user.followers.image?.data.toString('base64')}`;
      }
-    if(!follow) return null;
         return  {
         _id: follow._id,
         username: follow.username || '',
