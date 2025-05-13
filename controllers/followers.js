@@ -27,13 +27,18 @@ exports.followers = async(req,res) => {
     if(!Array.isArray(user.followers)){
         return res.json({ followers : [] });
     }
+   
    const followers = user.followers.map(follow => {
+     let userImage = null;
+     if(user.image && user.image?.data && user.image?.contentType){
+        userImage = `data:${user.image?.contentType};base64,${user.image?.data.toString('base64')}`;
+     }
     if(!follow) return null;
         return  {
         _id: follow._id,
         username: follow.username || '',
         firstname : follow.firstname || '',
-        image: follow.image || ''
+        image:  userImage,     
      };
    }).filter(Boolean);
    
