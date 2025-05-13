@@ -23,13 +23,8 @@ exports.getCUDetails = async (req, res) => {
     
     // Process user image if exists
     let userImage = null;
-    if (details.image && details.image.data && details.image.contentType) {
-      // Check if data is buffer and convert appropriately
-      if (Buffer.isBuffer(details.image.data)) {
-        userImage = `data:${details.image.contentType};base64,${details.image.data.toString('base64')}`;
-      } else if (typeof details.image.data === 'string') {
-        userImage = `data:${details.image.contentType};base64,${details.image.data}`;
-      }
+    if(user.image && user.image?.data && user.image?.contentType){
+        userImage = `data:${user.image?.contentType};base64,${user.image?.data.toString('base64')}`;
     }
     
     // Prepare response with all required fields
@@ -39,11 +34,11 @@ exports.getCUDetails = async (req, res) => {
         imageUrl: userImage
       },
       username: details.username,
-      firstName: details.firstname,
+      firstname: details.firstname,
       followingCount,
       followersCount
     };
-    
+    console.log( response);    
     return res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching user details:", error);
