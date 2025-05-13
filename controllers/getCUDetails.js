@@ -23,8 +23,8 @@ exports.getCUDetails = async (req, res) => {
     
     // Process user image if exists
     let userImage = null;
-    if(user.image && user.image?.data && user.image?.contentType){
-        userImage = `data:${user.image?.contentType};base64,${user.image?.data.toString('base64')}`;
+    if(details.image && details.image?.data && details.image?.contentType){
+        userImage = `data:${details.image?.contentType};base64,${details.image?.data.toString('base64')}`;
     }
     
     // Prepare response with all required fields
