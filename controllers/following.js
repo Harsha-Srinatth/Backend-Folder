@@ -28,12 +28,15 @@ exports.following = async(req,res) => {
         return res.json({ following : [] });
     }
    const following = user.following.map(follow => {
-    if(!follow) return null;
+    let userImage = null;
+     if(follow.image && follow.image?.data && follow.image?.contentType){
+        userImage = `data:${follow.image?.contentType};base64,${follow.image?.data.toString('base64')}`;
+     }
         return  {
         _id: follow._id,
         username: follow.username || '',
         firstname : follow.firstname || '',
-        image: follow.image || ''
+        image: userImage
      };
    }).filter(Boolean);
    
