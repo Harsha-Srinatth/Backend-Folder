@@ -133,8 +133,14 @@ router.get('/all-Details/C-U',checkauth , async(req,res) => {
   const  userId  = req.user.userId;
   try{
     const details = await Details.findById(userId);
+    let userImage = null;
+    if(details.image && details.image?.data && details.image?.contentType){
+      userImage = `data:${details.image?.contentType};base64,${details.image?.data.toString('base64')}`;
+    }
 
-    return res.status(200).json(details);
+    return res.status(200).json({...details
+      , image: userImage
+    });
   }catch(error){
     console.log(error);
     return res.status(500).json({message: "server error"});
