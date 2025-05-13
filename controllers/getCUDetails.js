@@ -1,41 +1,52 @@
 
 const Details  = require( '../models/Details.js');
 
-exports.getCUDetails =  async(req,res) => {
+exports.getCUDetails = async (req, res) => {
+  const userId = req.user.userId;
   
-  const  userId  = req.user.userId;
-  if(!userId){
-    return res.status(400).json({message: "userID not found"})
+  if(!userId) {
+    return res.status(400).json({ message: "userID not found" });
   }
-
-  try{
+  
+  try {
     const details = await Details.findById(userId);
-   
-    const FollowingCount = details.following ? details.following.length : 0;
-    const FollowersCount = details.followers ? details.followers.length : 0;
-
-     const userProfiles = details.map(user => {
-      let userImage = null;
-      
-      if(user.image && user.image?.data && user.image?.contentType){
-        userImage = `data:${user.image?.contentType};base64,${user.image?.data.toString('base64')}`;
+    
+    if (!details) {
+      return res.status(404).json({ message: "User details not found" });
+    }
+    
+    const followingCount = details.following ? details.following.length : 0;
+    const followersCount = details.followers ? details.followers.length : 0;
+    
+    // Convert user document to a plain object
+    const userDetails = details.toObject();
+    
+    // Process user image if exists
+    let userImage = null;
+    if (details.image && details.image.data && details.image.contentType) {
+      // Check if data is buffer and convert appropriately
+      if (Buffer.isBuffer(details.image.data)) {
+        userImage = `data:${details.image.contentType};base64,${details.image.data.toString('base64')}`;
+      } else if (typeof details.image.data === 'string') {
+        userImage = `data:${details.image.contentType};base64,${details.image.data}`;
       }
-      
-      return { 
-        ...details.toObject(),
-        image: {
-          imageUrl: userImage
-        }
-      };
-    });
-
-    res.status(200).json({userProfiles, 
-      FollowingCount,
-      FollowersCount,
-    });
-
-  }catch(err){
-    console.log(err);
-    return res.status(500).json({message:"server errror"})
+    }
+    
+    // Prepare response with all required fields
+    const response = {
+      ...userDetails,
+      image: {
+        imageUrl: userImage
+      },
+      username: details.username,
+      firstName: details.firstname,
+      followingCount,
+      followersCount
+    };
+    
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
