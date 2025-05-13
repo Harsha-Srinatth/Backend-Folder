@@ -38,9 +38,9 @@ exports.followers = async(req,res) => {
         _id: follow._id,
         username: follow.username || '',
         firstname : follow.firstname || '',
-        image:  { 
+        image:  
             userImage
-        }     
+            
      };
    }).filter(Boolean);
    
