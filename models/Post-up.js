@@ -28,6 +28,10 @@ const PostUpload = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId , ref: 'Details', required:true
     },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
     
 
 });
