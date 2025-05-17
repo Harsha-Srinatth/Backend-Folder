@@ -332,7 +332,7 @@ router.post("/:postId/comment", checkauth,  createComments );
 
 router.delete('/comments/:commentId',checkauth, deleteComments);
 
-router.put('/Update/your/details' , checkauth, updateUserDetails);
+router.put('/Update/your/details' , checkauth, uploadProfileImage, updateUserDetails);
 
 router.post('/follow/:userId', checkauth, sendFollowRequests);
 router.post('/unfollow/:userId', checkauth , unFollowUser);

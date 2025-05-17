@@ -3,14 +3,19 @@ const Details  = require( '../models/Details.js');
 exports.updateUserDetails = async(req,res) =>{
     try{
         const userId = req.user.userId;
+        const updateData = { ...req.body };
+        if(req.file){
+            const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+            updateData.image = base64Image;
+        }
         const updatedUser = await Details.findByIdAndUpdate(userId , 
-            { $set : req.body },
+            { $set : updateData },
             { new: true }
         );
         if(!updatedUser){
             return res.status(404).json({message: "user not Found"})
         }
-     res.status(201).json({message: "User succeffully Updated"})
+     res.status(201).json({message: "User succeffully Updated", user: updatedUser});
     }
    catch(err){
     console.log(err);
