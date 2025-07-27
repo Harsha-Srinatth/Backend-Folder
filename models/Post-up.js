@@ -1,8 +1,13 @@
 
 const mongoose = require('mongoose');
+const {v4: uuidv4} = require('uuid');
 
 const PostUpload = new mongoose.Schema({
-  
+    postId: {
+        type: String,
+        unique: true,
+        default: uuidv4()
+    },
     caption : {
         type: String,
         required: true
@@ -16,17 +21,17 @@ const PostUpload = new mongoose.Schema({
         required: true
     },
     likes: [{
-        type: mongoose.Schema.Types.ObjectId , ref: 'Details'
+        type: String, ref: 'Details'
     }],
     comments: [{
-         type: mongoose.Schema.Types.ObjectId , ref: 'comment'
+         type: String, ref: 'comment'
     }],
     image : {
        data: Buffer,
        contentType: String,
     },
-    userId: {
-        type: mongoose.Schema.Types.ObjectId , ref: 'Details', required:true
+    userid: {
+       type: String, ref: 'Details', required:true
     },
     createdAt: {
         type: Date,

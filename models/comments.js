@@ -1,12 +1,19 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
+
 const CommentsSchema = new mongoose.Schema({
-       post: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'Uploads'
+       commentId: {
+        type: String,
+        unique: true,
+        default: uuidv4()
        },
-       user: {
-        type: mongoose.Schema.Types.ObjectId , ref: 'Details'
+       postId: {
+        type: String, ref: 'Uploads'
        },
-       text : {
+       userid: {
+        type: String, ref: 'Details'
+       },
+       comment : {
         type: String,
         required: true
        },
@@ -14,7 +21,10 @@ const CommentsSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-    }
+},
+{
+    timestamps: true
+}   
 );
 
 const Comments = mongoose.model('Comments' , CommentsSchema);

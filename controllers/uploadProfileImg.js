@@ -25,8 +25,8 @@ exports.uploadProfileImg = async (req, res) => {
     const sizeInMB = ( processedImageBuffer.length / ( 1024 *1024)).toFixed(4);
     console.log(`Compressed image size: ${sizeInMB} MB`);
     // Update user record
-    const user = await Details.findByIdAndUpdate(
-      userId,
+    const user = await Details.findOneAndUpdate(
+      { userid: userId },
       {
         image: {
           data: processedImageBuffer,
@@ -35,6 +35,11 @@ exports.uploadProfileImg = async (req, res) => {
       },
       { new: true, runValidators: false }
     );
+    console.log('UploadProfileImg: userid:', userId, 'Update result:', user);
+    if (!user) {
+      console.error('UploadProfileImg: No user found for userid:', userId);
+      return res.status(404).json({ message: 'User not found for profile image update' });
+    }
     
     res.status(200).json(user);
   } catch (error) {

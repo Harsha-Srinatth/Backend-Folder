@@ -14,6 +14,7 @@ const { searchUsers } = require('../controllers/searchUsers.js');
 const { updateUserDetails } = require('../controllers/UpdateUserSchme.js');
 const { sendFollowRequests } =require('../controllers/sendFollowRequests.js');
 const { unFollowUser } = require('../controllers/unFollowUser.js');
+const { removeFollower } = require('../controllers/removeFollower.js');
 const { getCUDetails} = require('../controllers/getCUDetails.js');
 const {  uploadProfileImg } =require('../controllers/uploadProfileImg.js')
 const { deletePost } = require('../controllers/deletePost.js');
@@ -26,19 +27,23 @@ require('dotenv').config();
 
 router.post("/register",async (req,res)=> {
     try{
-      console.log('Request Body:',req.body);
-      const {firstname,username,email,password} = req.body;
-      if(!firstname ||!username ||!email || !password){
+      const {fullname,username,userid,email,password} = req.body;
+      if(!fullname ||!username ||!email || !password || !userid){
         return res.status(400).json({message: "All fields are required"});
       }
       const user1 = await Details.findOne({email});
       if(user1){
           return res.status(400).json({message: "Email is already exists"});
       }
+      const user2 = await Details.findOne({userid});
+      if(user2){
+        return res.status(400).json({message: "Userid is already exists"});
+      }
       const hashPassword = await bcrypt.hash(password,10);
       const user = new Details({
-          firstname,
+          fullname,
           username,
+          userid,
           email,
           password : hashPassword
       });
@@ -51,40 +56,41 @@ router.post("/register",async (req,res)=> {
 }
 );
 
-
-router.post('/login', async(req,res)=> {
-  const {email,password} = req.body;
-  try{
-    let user = await Details.findOne({email})
-    if(!user){
-     return res.status(404).json({message: "user not found"});
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required" });
+  }
+  try {
+    let user = await Details.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "invalid email or password" });
     }
-    const isMatch = await bcrypt.compare(password , user.password);
-
-    if(!isMatch){
-      return res.status(404).json({message: "Password is incorrect"});
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(404).json({ message: "invalid email or password" });
     }
-    const token = jwt.sign({
-      userId : user._id,
-      firstname : user.firstname,
-      username: user.username,
-      email : user.email,
-     },process.env.mySecretKey,{
-      expiresIn : '1h',
-     });
-
-    res.json({
-      token, user: {
-        userId: user._id,
-        firstname: user.firstname,
+    const token = jwt.sign(
+      {
+        userId: user.userid,
         username: user.username,
-        email : user.email,
-      }
+        email: user.email,
+      },
+      process.env.mySecretKey,
+      { expiresIn: '1d' }
+    );
+   return res.json({
+      token,
+      user: {
+        userId: user.userid,
+        username: user.username,
+        email: user.email,
+      },
     });
-   
-  }catch(err){
-      console.error("error in above code:",err);
-       return res.status(500).json({message:"server error"});
+    
+  } catch (err) {
+    console.error("error in above code:", err);
+    return res.status(500).json({ message: "server error" });
   }
 });
 
@@ -132,7 +138,7 @@ router.post('/upload-profile-img' ,checkauth , uploadProfileImage, uploadProfile
 router.get('/all-Details/C-U',checkauth , async(req,res) => {
   const  userId  = req.user.userId;
   try{
-    const details = await Details.findById(userId);
+    const details = await Details.findOne({userid: userId});
     let userImage = null;
     if(details.image && details.image?.data && details.image?.contentType){
       userImage = `data:${details.image?.contentType};base64,${details.image?.data.toString('base64')}`;
@@ -148,38 +154,9 @@ router.get('/all-Details/C-U',checkauth , async(req,res) => {
 }
 );
 
-// router.get('/all-Details/U/:userId' , async(req,res) => {
-//   const userId = req.params.userId;
-//   console.log(userId,"receiverd ")
-//   try{
-//     const userDetails = await Details.findById(userId).select("image _id");
-//     return res.status(200).json(userDetails);
-
-//   }catch(error){
-//     console.log("server Error",error);
-//     return res.status(500).json({message: "server error"})
-//   }
-// })
-// router.get("/post/:postId", async(req,res)=> {
-//   try{
-//     const post = await Uploads.find(req.params.postId);
-
-//      if(!post || !post.image || !post.image.data){
-//           return res.status(404).send("image not found");
-//       }
-
-//      res.set('Content-Type', post.image.contentType || 'image/jpeg');
-//      return res.send(post.image.data);
-
-//   }catch(error){
-//     console.error(error);
-//     return res.status(500).json({message: " Server Error"})
-//   }
-// })
-
 router.get("/post", async(req,res)=>{
     try{
-        const post = await Uploads.find().populate('userId', 'username image').lean();
+        const post = await Uploads.find({}).lean();
         if(!post || post.length == 0){
           return res.status(404).json({message: "post not found"});
         }
@@ -189,54 +166,14 @@ router.get("/post", async(req,res)=>{
               postImage = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
           }
           let userImage = null;
-          if(post.userId.image && post.userId.image?.data && post.userId.image?.contentType){
-              userImage = post.userId.image?.data ? `data:${post.userId.image?.contentType};base64,${post.userId.image?.data.toString('base64')}`:null;
+          if(post.userid.image && post.userid.image?.data && post.userid.image?.contentType){
+              userImage = post.userid.image?.data ? `data:${post.userid.image?.contentType};base64,${post.userId.image?.data.toString('base64')}`:null;
           }
-        //   const userData = post.user || post.userId || {};
-        //   let userInfo = null;
-        //   console.log(userData);
-        //   if(userData){
-        //     userInfo = {
-        //       _id : userData._id || "",
-        //       username: userData.username || ""
-        //     };
-        //   }
-        //      let userImage = null;
-
-        //   if(userData.imageUrl) {
-        //     userImage = userData.imageUrl;
-        //   }
-        //   else if(userData.image){
-        //     if(userData.image.imageUrl){
-        //       userImage = userData.image.imageUrl;
-        //     }
-        //     else if(userData.image.data && userData.image.contentType){
-        //     try{
-        //       if(typeof userData.image.data === 'string' && userData.image.data.startsWith('data:')){
-        //         userImage = userData.image.data;
-        //       }else{
-        //         const imageData = Buffer.isBuffer(userData.image.data) ? userData.image?.data.toString('base64') : userData.image.data;
-        //         userImage = `data:${userData.image.contentType};base64,${ imageData }`;
-        //       }         
-        //     }catch(error){
-        //       console.error("Error formating user image",error);
-        //     }
-        //   }
-        // }else if(userData.userId && userData.userId.image && userData.userId.image.data){
-        //   try{
-        //     if(userData.userId.image.contentType){
-        //       userImage = `data:${userData.image.contentType};base64,${userData.userId.image.data }`;
-        //     }else{
-        //       userImage = `data:image/jpeg;base64,${ userData.userId.image.data }`;
-        //     }
-        //   }catch(error){
-        //     console.error("error formating userId image",error);
-        //   }
-        // }
+       
         return { ...post,
             imageUrl: postImage,
             user: {
-              imageUrl: userImage
+              imageUrl: userImage || null
             }
           };
         });
@@ -244,7 +181,7 @@ router.get("/post", async(req,res)=>{
         if(formattedpost.length > 0){
           console.log(JSON.stringify({
             postImage : formattedpost[0].imageUrl ? "present" : "Null",
-            userId:formattedpost[0].userId?._id,
+            userId:formattedpost[0].userid,
             userImage : formattedpost[0].user?.imageUrl ? "present" : "Null"
           }))
         }
@@ -301,22 +238,6 @@ const getComments = async(req,res) => {
     }
 };
 
-// router.get('/:userId/list-followers' , async(req,res) => {
-//   try
-//   {
-//     const userId = req.params.userId;
-//     const user = await Details.findById(userId).populate('followers', 'username firstname image');
-//     return res.status(201).json({
-//       followers: user.followers
-//   });
-//   }
-//   catch(error)
-//   {
-//     console.error(error);
-//     return res.status(500).json({ message: "Server Error"});
-//   }
- 
-// })
 router.delete('/posts/:postId',checkauth ,deletePost );
 
 router.get('/following-list/:userId',following);
@@ -336,6 +257,7 @@ router.put('/Update/your/details' , checkauth, uploadProfileImage, updateUserDet
 
 router.post('/follow/:userId', checkauth, sendFollowRequests);
 router.post('/unfollow/:userId', checkauth , unFollowUser);
+router.post('/remove-follower/:userId', checkauth, removeFollower);
 
 router.get('/getDetails' ,checkauth, getCUDetails);
 
@@ -344,20 +266,24 @@ router.get('/user/:userId' , checkauth ,  async(req,res) => {
   const  userId  = req.params.userId;
   const  currentUserId  = req.user.userId;
   console.log("received userId",userId);
-  console.log("receiverd currentUserId" , currentUserId);
+  console.log("received currentUserId" , currentUserId);
 
   if(!userId){
     return res.status(400).json({message: "userID not found"})
   }
 
   try{
-    const user = await Details.findById(userId).lean();
+    const user = await Details.findOne({ userid: userId }).lean();
     if(!user){
       return res.status(404).json({message: "User not found"})
     }
     const FollowingCount = user.following ? user.following.length : 0;
     const FollowersCount = user.followers ? user.followers.length : 0;
-    const isFollowing  = user.followers.includes(currentUserId);
+    
+    // Convert ObjectIds to strings for proper comparison
+    const followersString = user.followers ? user.followers.map(id => id.toString()) : [];
+    const isFollowing = followersString.includes(currentUserId.toString());
+    
     user._id = user._id.toString();
     let userImage = null;
     if(user.image && user.image?.data && user.image?.contentType){
@@ -374,7 +300,7 @@ router.get('/user/:userId' , checkauth ,  async(req,res) => {
 
   }catch(err){
     console.log(err);
-    return res.status(500).json({message:"server errror"})
+    return res.status(500).json({message:"server error"})
   }
 });
 

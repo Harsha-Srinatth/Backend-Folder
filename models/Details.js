@@ -2,13 +2,18 @@
 const mongoose = require('mongoose')
 const DetailSchema = new mongoose.Schema({
        
-        firstname : {
+        fullname : {
             type: String,
             required : true
         },
         username: {
             type: String,
             required: true
+        },
+        userid: {
+            type: String,
+            required: true,
+            unique: true
         },
         email : {
             type : String,
@@ -27,13 +32,13 @@ const DetailSchema = new mongoose.Schema({
             type: Boolean , default: false
         },
          followers: [{
-                type: mongoose.Schema.Types.ObjectId , ref: 'Details',default: []
+                type:String , ref: 'Details',default: []
             }],
          following: [{
-                type: mongoose.Schema.Types.ObjectId , ref: 'Details',default: []
+                type: String , ref: 'Details',default: []
             }],
         followRequests: [{
-                type: mongoose.Schema.Types.ObjectId,ref: 'Details',default: []
+                 type: String ,ref: 'Details',default: []
             }]
     }
 );

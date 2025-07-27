@@ -11,7 +11,7 @@ exports.createPost = async (req , res) => {
                 data: req.file.buffer,
                 contentType: req.file.mimetype,
             },
-            userId, 
+            userid: userId, 
         });
         await newPost.save();
         res.status(201).json({meassage: "post uploaded"});

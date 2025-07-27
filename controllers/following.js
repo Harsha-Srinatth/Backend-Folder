@@ -5,13 +5,13 @@ exports.following = async(req,res) => {
 
     const userId  = req.params.userId;
     console.log(userId ,"following list of user id");
-    const rawUser = await Details.findById(userId);
+    const rawUser = await Details.findOne({userid: userId});
     console.log("raw user data :", JSON.stringify(rawUser,null,2));
 
     if(!userId){
         return res.status(401).json({message: "userid doesnt exists" });
     };
-    const user = await Details.findById(userId);
+    const user = await Details.findOne({userid: userId});
     if(!user){
         return res.status(404).json({message:"user not found"});
     }
@@ -19,29 +19,35 @@ exports.following = async(req,res) => {
         return res.json({ following : [] });
     };
     console.log("Following length :" ,user.following.length)
-     await user.populate({
-        path: 'following',
-        select : 'firstname username image',
-        model: 'Details'
-    });
     if(!Array.isArray(user.following)){
         return res.json({ following : [] });
     }
-   const following = user.following.map(follow => {
-    let userImage = null;
-     if(follow.image && follow.image?.data && follow.image?.contentType){
-        userImage = `data:${follow.image?.contentType};base64,${follow.image?.data.toString('base64')}`;
+   const following = await Promise.all(user.following.map(async (followUserId) => {
+     try {
+       const followUser = await Details.findOne({ userid: followUserId });
+       if (!followUser) return null;
+       
+       let userImage = null;
+       if (followUser.image && followUser.image?.data && followUser.image?.contentType) {
+         userImage = `data:${followUser.image?.contentType};base64,${followUser.image?.data.toString('base64')}`;
+       }
+       
+       return {
+         userId: followUser.userid,
+         username: followUser.username || '',
+         fullname: followUser.fullname || '',
+         image: userImage
+       };
+     } catch (error) {
+       console.error('Error fetching following user:', error);
+       return null;
      }
-        return  {
-        _id: follow._id,
-        username: follow.username || '',
-        firstname : follow.firstname || '',
-        image: userImage
-     };
-   }).filter(Boolean);
+   }));
+   
+   const validFollowing = following.filter(Boolean);
    
    return  res.json({
-       following
+       following: validFollowing
     })
 
     }catch(error){

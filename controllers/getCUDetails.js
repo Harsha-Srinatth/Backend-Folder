@@ -3,13 +3,14 @@ const Details  = require( '../models/Details.js');
 
 exports.getCUDetails = async (req, res) => {
   const userId = req.user.userId;
+  console.log("userId in getCUDetails",userId);
   
   if(!userId) {
     return res.status(400).json({ message: "userID not found" });
   }
   
   try {
-    const details = await Details.findById(userId);
+    const details = await Details.findOne({ userid: userId });
     
     if (!details) {
       return res.status(404).json({ message: "User details not found" });
