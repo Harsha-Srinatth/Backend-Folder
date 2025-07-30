@@ -5,7 +5,7 @@ const CommentsSchema = new mongoose.Schema({
        commentId: {
         type: String,
         unique: true,
-        default: uuidv4()
+        default: () => uuidv4()
        },
        postId: {
         type: String, ref: 'Uploads'

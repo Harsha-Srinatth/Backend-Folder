@@ -154,29 +154,31 @@ router.get('/all-Details/C-U',checkauth , async(req,res) => {
 }
 );
 
-router.get("/post", async(req,res)=>{
+router.get("/post", checkauth, async(req,res)=>{
     try{
         const post = await Uploads.find({}).lean();
         if(!post || post.length == 0){
           return res.status(404).json({message: "post not found"});
         }
-        const formattedpost = post.map(post => {
+        const formattedpost = await Promise.all(post.map(async(post) => {
           let postImage = null;
           if(post.image && post.image?.data && post?.image?.contentType){
               postImage = post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
           }
           let userImage = null;
-          if(post.userid.image && post.userid.image?.data && post.userid.image?.contentType){
-              userImage = post.userid.image?.data ? `data:${post.userid.image?.contentType};base64,${post.userId.image?.data.toString('base64')}`:null;
+          const users = await Details.findOne({userid: post.userid});
+          if(users.image && users.image?.data && users.image?.contentType){
+            userImage = users.image?.data ? `data:${users.image.contentType};base64,${users.image.data.toString('base64')}`:null;
           }
        
         return { ...post,
             imageUrl: postImage,
             user: {
-              imageUrl: userImage || null
-            }
+              imageUrl: userImage
+            },
+            username: users.username
           };
-        });
+        }));
 
         if(formattedpost.length > 0){
           console.log(JSON.stringify({
@@ -200,25 +202,25 @@ const getUserPosts = async(req,res) => {
       return res.status(401).json({message : " Unauthorized"})
     }
       const userId = req.user.userId;
-      const post = await Uploads.find({ userId }).sort({ createdAt: -1 }).populate('userId','username image').lean();
+      const post = await Uploads.find({ userid: userId }).sort({ createdAt: -1 }).lean();
       if(!post || post.lenght == 0){
         return res.status(200).json({message : "no posts found", post: []});
       }  
 
-        const formattedpost = post.map(post => {
+        const formattedpost =  await Promise.all(post.map(async(post) => {
     
           const postImage = post.image && post.image?.data ? `data:${post.image.contentType};base64,${post.image.data.toString('base64')}`:null;
-          const user = post.userId;
+          const user = await Details.findOne({userid: post.userid});
           const userImage = user && user.image && user?.image?.data ? `data:${user.image.contentType};base64,${user.image.data.toString('base64')}`:null;
           return { ...post,
             imageUrl: postImage,
             user: {
-              _id : user?._id,
+              userid: user?.userid,
               username: user?.username,
               imageUrl: userImage
             }
           };
-        });
+        }));
 
       return res.status(201).json(formattedpost);
   }catch(err){
@@ -226,26 +228,16 @@ const getUserPosts = async(req,res) => {
       res.status(500).json({message: err.message})
   }
 };
-const getComments = async(req,res) => {
-    try{
-      const { postId } = req.params;
-      const comments = await Comments.find({ post: postId }).populate( 'user','username')
-      .sort({createdAt: -1});
-      res.status(200).json(comments);
-    }catch(error){
-        console.error("server error", error);
-        return res.status(500).json({message: "server error"})
-    }
-};
+const { getComments } = require('../controllers/comments');
 
-router.delete('/posts/:postId',checkauth ,deletePost );
+router.delete('/user/posts/user_posts/:postId',checkauth ,deletePost );
 
 router.get('/following-list/:userId',following);
 router.get('/followers-list/:userId', followers);
 
 router.get('/:postId/comments' , getComments);
 
-router.get("/user/posts", checkauth, getUserPosts);
+router.get("/user/posts/user_posts", checkauth, getUserPosts);
 
 router.post("/:postId/like", checkauth, likes );
 

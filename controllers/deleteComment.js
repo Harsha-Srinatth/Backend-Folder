@@ -9,23 +9,18 @@ exports.deleteComments = async(req,res) => {
         const { postId } = req.body;
         const userId = req.user.userId;
 
-        // Validate commentId
-        if (!mongoose.Types.ObjectId.isValid(commentId)) {
-            return res.status(400).json({message: "Invalid comment ID format"});
-        }
-
-        const comment = await Comments.findById(commentId);
+        const comment = await Comments.findOne({commentId: commentId});
         if(!comment){
-            return res.ststus(404).json({message: " comment  not Found"})
+            return res.status(404).json({message: " comment  not Found"})
         }
-        if(comment.user.toString() !== userId.toString()) {
+        if(comment.userid.toString() !== userId.toString()) {
             return res.status(403).json({message: "Unauthotized: You con Only Delete Your own Comment"});
         }
 
-         await Comments.findByIdAndDelete(commentId);
+        await Comments.findOneAndDelete({commentId: commentId});
 
 
-        const updatedPost =  await Uploads.findByIdAndUpdate(postId,{
+        const updatedPost =  await Uploads.findOneAndUpdate({postId: postId},{
             $pull : {
                 comments: commentId
             }

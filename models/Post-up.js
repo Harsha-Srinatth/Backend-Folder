@@ -6,7 +6,7 @@ const PostUpload = new mongoose.Schema({
     postId: {
         type: String,
         unique: true,
-        default: uuidv4()
+        default: () => uuidv4()
     },
     caption : {
         type: String,
