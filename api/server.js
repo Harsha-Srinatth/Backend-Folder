@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const express = require('express')
 const dotEnv = require('dotenv')
 const cors = require('cors')
-const authRoutes = require('./routes/authRoutes.js');
+const authRoutes = require('../routes/authRoutes.js');
 const fs = require('fs');
 const path = require('path');  
 import serverless from "serverless-http" 
