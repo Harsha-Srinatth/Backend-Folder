@@ -40,4 +40,4 @@ mongoose.connect(process.env.MONGO_URL,{
 
 app.use('/', authRoutes);
 
-export default serverless(app);
+export const handler = serverless(app);
