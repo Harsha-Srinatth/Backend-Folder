@@ -13,7 +13,7 @@ const uploadDir = process.env.UPLOADS_PATH || path.join(__dirname,'/uploads');
 app.use('/uploads', 
     express.static(uploadDir));
 app.use(cors({
-    origin:'http://localhost:5173',
+    origin: process.env.FRONTEND_URL,
     credentials: true,
     methods: ['GET','POST','PUT','DELETE','OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
