@@ -77,7 +77,7 @@ router.post('/login', async (req, res) => {
         username: user.username,
         email: user.email,
       },
-      process.env.mySecretKey,
+      process.env.MY_SECRET_KEY,
       { expiresIn: '1d' }
     );
    return res.json({
@@ -104,7 +104,7 @@ const checkauth = (req,res,next) => {
    if (!token){
     return res.status(401).json({meassage : "No token, authorization denied"});
    }
-    const decoded  = jwt.verify(token,process.env.mySecretKey);
+    const decoded  = jwt.verify(token,process.env.MY_SECRET_KEY);
     req.user = decoded;
     next();
    }catch(error){

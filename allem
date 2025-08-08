@@ -1,0 +1,6 @@
+
+# MONGO_URL ="mongodb+srv://harhsasrinatth5599:harsha123@cluster0.hs1f4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+
+# MY_SECRET_KEY = "mytoken"
+
+# FRONTEND_URL = "https://my-frontend-pi-gules.vercel.app"
