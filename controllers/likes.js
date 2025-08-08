@@ -23,6 +23,7 @@ exports.likes = async(req,res) => {
         res.status(200).json({
             likesCount: post.likes.length,
             likedByUser: !liked,
+            userAlreadyLiked: post.likes.includes(userId)
         });
     }catch(err){
         console.log(err);

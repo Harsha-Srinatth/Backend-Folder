@@ -4,10 +4,7 @@ exports.following = async(req,res) => {
     try{
 
     const userId  = req.params.userId;
-    console.log(userId ,"following list of user id");
     const rawUser = await Details.findOne({userid: userId});
-    console.log("raw user data :", JSON.stringify(rawUser,null,2));
-
     if(!userId){
         return res.status(401).json({message: "userid doesnt exists" });
     };
@@ -18,10 +15,7 @@ exports.following = async(req,res) => {
     if(!user.following || !Array.isArray(user.following)){
         return res.json({ following : [] });
     };
-    console.log("Following length :" ,user.following.length)
-    if(!Array.isArray(user.following)){
-        return res.json({ following : [] });
-    }
+    
    const following = await Promise.all(user.following.map(async (followUserId) => {
      try {
        const followUser = await Details.findOne({ userid: followUserId });

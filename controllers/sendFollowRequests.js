@@ -6,9 +6,6 @@ const mongoose = require('mongoose');
 exports.sendFollowRequests = async(req,res) => {
     const currentUserId  = req.user.userId;
     const userId  = req.params.userId;
-    console.log("received currentUserId" , currentUserId);
-    console.log("received targetUserId",userId);
-    console.log("Received body",req.body);
 
     try{
         const session = await mongoose.startSession();

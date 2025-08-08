@@ -28,6 +28,10 @@ const DetailSchema = new mongoose.Schema({
             data: Buffer,
             contentType: String,
         },
+        bio: {
+            type: String,
+            default: ''
+        },
         isPrivate: {
             type: Boolean , default: false
         },

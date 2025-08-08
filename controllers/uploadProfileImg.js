@@ -5,7 +5,6 @@ const sharp = require('sharp');
 exports.uploadProfileImg = async (req, res) => {
   try {
     const userId = req.user.userId;
-    console.log("received user id for Upload Profile photo", userId);
     
     if (!req.file) {
       return res.status(400).json({ message: 'No image file provided' });
@@ -23,8 +22,7 @@ exports.uploadProfileImg = async (req, res) => {
       .jpeg({ quality: 80 })  // Convert to JPEG with reasonable quality
       .toBuffer();
     const sizeInMB = ( processedImageBuffer.length / ( 1024 *1024)).toFixed(4);
-    console.log(`Compressed image size: ${sizeInMB} MB`);
-    // Update user record
+
     const user = await Details.findOneAndUpdate(
       { userid: userId },
       {
@@ -35,7 +33,6 @@ exports.uploadProfileImg = async (req, res) => {
       },
       { new: true, runValidators: false }
     );
-    console.log('UploadProfileImg: userid:', userId, 'Update result:', user);
     if (!user) {
       console.error('UploadProfileImg: No user found for userid:', userId);
       return res.status(404).json({ message: 'User not found for profile image update' });

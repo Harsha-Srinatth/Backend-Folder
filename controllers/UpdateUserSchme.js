@@ -5,12 +5,12 @@ exports.updateUserDetails = async(req,res) =>{
         const userId = req.user.userId;
         const updateData = { ...req.body };
         if(req.file){
-            updateData.image = {
-            data: req.file.buffer,
-            contentType: req.file.mimetype
-           };
+            // Convert buffer to base64 and create a complete data URL
+            const base64Image = req.file.buffer.toString('base64');
+            const dataUrl = `data:${req.file.mimetype};base64,${base64Image}`;
+            updateData.image = dataUrl;
         }
-        const updatedUser = await Details.findByIdAndUpdate(userId , 
+        const updatedUser = await Details.findOneAndUpdate({userid: userId}, 
             { $set : updateData },
             { new: true }
         );

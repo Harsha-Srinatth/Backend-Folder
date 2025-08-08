@@ -20,7 +20,8 @@ const {  uploadProfileImg } =require('../controllers/uploadProfileImg.js')
 const { deletePost } = require('../controllers/deletePost.js');
 const { following } = require('../controllers/following.js');
 const { followers } = require('../controllers/followers.js');
-const { uploadProfileImage } = require('../middleware/uploadProfileImage.js')
+const { uploadProfileImage } = require('../middleware/uploadProfileImage.js');
+const { deleteAccount } = require('../controllers/deleteAccount.js')
 
 const router = express.Router();
 require('dotenv').config();
@@ -257,9 +258,6 @@ router.get('/user/:userId' , checkauth ,  async(req,res) => {
   
   const  userId  = req.params.userId;
   const  currentUserId  = req.user.userId;
-  console.log("received userId",userId);
-  console.log("received currentUserId" , currentUserId);
-
   if(!userId){
     return res.status(400).json({message: "userID not found"})
   }
@@ -295,5 +293,7 @@ router.get('/user/:userId' , checkauth ,  async(req,res) => {
     return res.status(500).json({message:"server error"})
   }
 });
+
+router.delete('/userAccount/delete/permanently/:userid', checkauth,deleteAccount);
 
 module.exports = router;

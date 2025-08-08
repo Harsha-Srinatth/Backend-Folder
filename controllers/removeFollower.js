@@ -5,8 +5,6 @@ const mongoose = require('mongoose');
 exports.removeFollower = async(req,res) => {
     const currentUserId = req.user.userId;
     const followerUserId = req.params.userId;
-    console.log(followerUserId, "follower user Id to remove");
-    console.log(currentUserId, "current user Id from the token");
     
     try{
         const session = await mongoose.startSession();
@@ -35,9 +33,6 @@ exports.removeFollower = async(req,res) => {
                 return res.status(400).json({message: "This user is not following you"});
             }
 
-            console.log("Before remove follower - Current user followers:", currentUser.followers);
-            console.log("Before remove follower - Follower user following:", followerUser.following);
-
             // Remove the follower from current user's followers list
             const currentUserUpdateResult = await Details.updateOne(
                 { userid: currentUserId },
@@ -52,11 +47,6 @@ exports.removeFollower = async(req,res) => {
                 { session }
             );
 
-            console.log("Update results:", {
-                currentUserUpdated: currentUserUpdateResult.modifiedCount,
-                followerUpdated: followerUpdateResult.modifiedCount
-            });
-
             if( currentUserUpdateResult.modifiedCount === 0 && followerUpdateResult.modifiedCount === 0){
                 await session.abortTransaction();
                 session.endSession();
@@ -67,8 +57,6 @@ exports.removeFollower = async(req,res) => {
             const updatedCurrentUser = await Details.findOne({ userid: currentUserId }).session(session);
             const updatedFollowerUser = await Details.findOne({ userid: followerUserId }).session(session);
             
-            console.log("After remove follower - Current user followers:", updatedCurrentUser.followers);
-            console.log("After remove follower - Follower user following:", updatedFollowerUser.following);
 
             await session.commitTransaction();
             session.endSession();

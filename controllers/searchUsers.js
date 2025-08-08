@@ -35,7 +35,6 @@ exports.searchUsers = async (req, res) => {
       };
     });
     
-    console.log(userProfiles);
     res.status(201).json(userProfiles);
   }catch(err){
     console.error(err);

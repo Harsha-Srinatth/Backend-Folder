@@ -18,9 +18,6 @@ exports.followers = async(req,res) => {
     if(!user.followers || !Array.isArray(user.followers)){
         return res.json({ followers : [] });
     };
-    if(!Array.isArray(user.followers)){
-        return res.json({ followers : [] });
-    }
    
    const followers = await Promise.all(user.followers.map(async (followUserId) => {
      try {

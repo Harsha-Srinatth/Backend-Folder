@@ -5,8 +5,6 @@ const mongoose = require('mongoose');
 exports.unFollowUser = async(req,res) => {
     const  currentUserId   = req.user.userId;
     const userId  = req.params.userId;
-    console.log(userId,"received user Id");
-    console.log(currentUserId,"received user Id from the token");
     
     try{
         const session = await mongoose.startSession();
@@ -35,8 +33,6 @@ exports.unFollowUser = async(req,res) => {
                 return res.status(400).json({message: "Not following this user"});
             }
 
-            console.log("Before unfollow - Current user following:", currentUser.following);
-            console.log("Before unfollow - Target user followers:", targetUser.followers);
 
             const userUpdatedResult = await Details.updateOne(
                 { userid: currentUserId },
@@ -50,11 +46,6 @@ exports.unFollowUser = async(req,res) => {
                 { session }
             );
 
-            console.log("Update results:", {
-                userUpdated: userUpdatedResult.modifiedCount,
-                targetUpdated: targetUpdateResult.modifiedCount
-            });
-
             if( userUpdatedResult.modifiedCount === 0 && targetUpdateResult.modifiedCount === 0){
                 await session.abortTransaction();
                 session.endSession();
@@ -65,9 +56,6 @@ exports.unFollowUser = async(req,res) => {
             const updatedCurrentUser = await Details.findOne({ userid: currentUserId }).session(session);
             const updatedTargetUser = await Details.findOne({ userid: userId }).session(session);
             
-            console.log("After unfollow - Current user following:", updatedCurrentUser.following);
-            console.log("After unfollow - Target user followers:", updatedTargetUser.followers);
-
             await session.commitTransaction();
             session.endSession();
             return res.status(200).json({ 

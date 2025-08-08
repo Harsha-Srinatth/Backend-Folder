@@ -1,12 +1,10 @@
 
 const  Uploads = require("../models/Post-up.js");
-const mongoose = require('mongoose');
 
 exports.deletePost = async (req, res) => {
     try {
         const userId = req.user.userId;
         const { postId } = req.params;
-        console.log(postId);
 
         const post = await Uploads.findOne({ postId: postId });
 
