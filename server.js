@@ -4,7 +4,8 @@ const dotEnv = require('dotenv')
 const cors = require('cors')
 const authRoutes = require('./routes/authRoutes.js');
 const fs = require('fs');
-const path = require('path');   
+const path = require('path');  
+import serverless from "serverless-http" 
 const app = express();
 
 const uploadDir = process.env.UPLOADS_PATH || path.join(__dirname,'/uploads');
@@ -39,7 +40,4 @@ mongoose.connect(process.env.MONGO_URL,{
 
 app.use('/', authRoutes);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, ()=>{
-    console.log(`Server started and running at ${PORT}`)
-})
+export default serverless(app);
