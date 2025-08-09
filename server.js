@@ -10,7 +10,7 @@ dotEnv.config(); // Load .env early
 
 const app = express();
 
-const uploadDir = process.env.UPLOADS_PATH || path.join(__dirname, '/uploads');
+const uploadDir = path.join(__dirname, '/uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
     console.log("Upload Folder Created.");
