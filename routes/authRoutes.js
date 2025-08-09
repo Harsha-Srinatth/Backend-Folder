@@ -29,6 +29,7 @@ require('dotenv').config();
 router.post("/register",async (req,res)=> {
     try{
       const {fullname,username,userid,email,password} = req.body;
+        console.log("user detials from frontend: ", req.body);
       if(!fullname ||!username ||!email || !password || !userid){
         return res.status(400).json({message: "All fields are required"});
       }
@@ -59,6 +60,7 @@ router.post("/register",async (req,res)=> {
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
+    console.log("user details from frontend : ",req.body);
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required" });
   }
