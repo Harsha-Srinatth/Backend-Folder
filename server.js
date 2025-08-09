@@ -2,22 +2,23 @@ const mongoose = require('mongoose')
 const express = require('express')
 const dotEnv = require('dotenv')
 const cors = require('cors')
-const authRoutes = require('../routes/authRoutes.js');
+const authRoutes = require('./routes/authRoutes.js');
 const fs = require('fs');
 const path = require('path');  
-import serverless from "serverless-http" 
 const app = express();
 
 const uploadDir = process.env.UPLOADS_PATH || path.join(__dirname,'/uploads');
 
 app.use('/uploads', 
     express.static(uploadDir));
+
 app.use(cors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
     methods: ['GET','POST','PUT','DELETE','OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
 dotEnv.config();
@@ -40,4 +41,8 @@ mongoose.connect(process.env.MONGO_URL,{
 
 app.use('/', authRoutes);
 
-export const handler = serverless(app);
+const PORT = 5000;
+
+app.listen(PORT,() => {
+    console.log(`server started and running at ${PORT}`)
+});
